@@ -2,7 +2,7 @@ Instalação dos componentes nativos:
 1. Expandir o arquivo mqx-dist.tar.gz dentro do diretório things-execution
 2. Editar o arquivo things-execution/.profile com as seguinte entradas:
 	export MQX_DIST=[path]/things-execution/mqx-dist, onde [path] é o caminho completo até o diretório things-execution
-	export LD_LIBRARY_PATH=$(MQX_DIST)/lib64
+	export LD_LIBRARY_PATH="$MQX_DIST/lib64"
 3. Remove do arquivo config.xml quaisquer propriedades com os valores br.gov.caixa.mqx.Lib ou java.library.path, que não são mais necessárias.
 
 
