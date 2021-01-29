@@ -1,0 +1,417 @@
+#
+# Este documento especifica os serviçõs fornecidos pelo agente operador do FGTS
+# para o FGTS Digital.
+#
+openapi: 3.0.3
+
+info:
+  title: Agente Operador
+  description: Especificação dos serviços fornecidos pelo Agente Oerador do
+    FGTS ao FGTS-Ditial.
+  version: 1.9.0
+  # Referente Versão 1.9 do documento Integração FGTS Digital
+  contact:
+    name: João Carlos Veiga da Silva
+    email: carlos.v.silva@caixa.gov.br
+
+servers:
+  - url: http://localhost:8080/ecaixa
+    description: Desenvolvimento local
+  - url: 'https://sicfd.caixa.gov.br/ecaixa'
+    description: Serviço de atendimento ao FGTS-Digital
+  - url: 'https://hmp.sicfd.caixa.gov.br/ecaixa'
+    description: URL para homologação dos serviços
+
+paths:
+  # Serviço de informações de admissão e atualização de vínculo empregatício.
+  /vinculo:
+
+    post:
+      operationId: novoVinculo
+      summary: Criação de vínculo
+      description: Informações fornecidas na criação de um novo vínculo entre
+        empregador e empregado, na admissão do trabalhador e dados os eventos
+        de admissão por transferência e por mudança de CPF. É possível utilizar
+        essa operação como um rollback de operação anteriormente efetuada.
+        O indicador de rollback aparece no payload JSON.
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              description: Token JWS assinado contendo um payload especificado
+                em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                reivindicação dat está definida em
+                https://sicfd.caixa.gov.br/ecaixa/vinculo.json
+              type: string
+      responses:
+        '200':
+          description: Operação de exclusão bem sucedida. Vínculo excluído.
+          content:
+            text/plain:
+              schema:
+                description: Token JWS assinado contendo um payload especificado
+                  em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                  reivindicação dat está definida em
+                  https://sicfd.caixa.gov.br/ecaixa/resposta.json
+                type: string
+        '201':
+          description: Operação bem sucedida. Vínculo criado.
+          content:
+            text/plain:
+              schema:
+                description: Token JWS assinado contendo um payload especificado
+                  em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                  reivindicação dat está definida em
+                  https://sicfd.caixa.gov.br/ecaixa/resposta-vinculo.json
+                type: string
+        '400':
+          description: Objeto JSON inesperado recebido no requestBody
+          content:
+            text/plain:
+              schema:
+                description: Token JWS assinado contendo um payload especificado
+                  em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                  reivindicação dat está definida em
+                  https://sicfd.caixa.gov.br/ecaixa/resposta.json. Consulte o
+                  documento Proposta de Integração Caixa e FGTS Digital.
+                type: string
+        '403':
+          description: Falha na verificação da assinatura
+          content:
+            text/plain:
+              schema:
+                description: Token JWS assinado contendo um payload especificado
+                  em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                  reivindicação dat está definida em
+                  https://sicfd.caixa.gov.br/ecaixa/resposta.json
+                type: string
+        '409':
+          description: A operação não pôde ser realizada por erro de negócio
+          content:
+            text/plain:
+              schema:
+                description: Token JWS assinado contendo um payload especificado
+                  em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                  reivindicação dat está definida em
+                  https://sicfd.caixa.gov.br/ecaixa/resposta.json. Consulte o
+                  documento Proposta de Integração Caixa e FGTS Digital.
+                type: string
+        '500':
+          description: Erro inesperado na infraestrutura
+          content:
+            text/plain:
+              schema:
+                description: Token JWS assinado contendo um payload especificado
+                  em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                  reivindicação dat está definida em
+                  https://sicfd.caixa.gov.br/ecaixa/resposta.json. Se a falha
+                  for tal que a assinatura não possa ser realizada, o corpo
+                  da resposta contém uma mensagem de erro em texto plano.
+                type: string
+
+    patch:
+      operationId: atualizaVinculo
+      summary: Atualização do vínculo
+      description: Alteração ou retificação de dados associados ao vínculo. É
+        possível utilizar essa operação como um rollback de operação
+        anteriormente efetuada. O indicador de rollback aparece no payload JSON.
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              description: Token JWS assinado contendo um payload especificado
+                em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                reivindicação dat está definida em
+                https://sicfd.caixa.gov.br/ecaixa/vinculo.json
+              type: string
+      responses:
+        '200':
+          description: Operação bem sucedida.
+          content:
+            text/plain:
+              schema:
+                description: Token JWS assinado contendo um payload especificado
+                  em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                  reivindicação dat está definida em
+                  https://sicfd.caixa.gov.br/ecaixa/resposta.json
+                type: string
+        '400':
+          description: Objeto JSON inesperado recebido no requestBody
+          content:
+            text/plain:
+              schema:
+                description: Token JWS assinado contendo um payload especificado
+                  em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                  reivindicação dat está definida em
+                  https://sicfd.caixa.gov.br/ecaixa/resposta.json. Consulte o
+                  documento Proposta de Integração Caixa e FGTS Digital.
+                type: string
+        '403':
+          description: Falha na verificação da assinatura
+          content:
+            text/plain:
+              schema:
+                description: Token JWS assinado contendo um payload especificado
+                  em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                  reivindicação dat está definida em
+                  https://sicfd.caixa.gov.br/ecaixa/resposta.json
+                type: string
+        '409':
+          description: Operação não processada por erro de negócio.
+          content:
+            text/plain:
+              schema:
+                description: Token JWS assinado contendo um payload especificado
+                  em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                  reivindicação dat está definida em
+                  https://sicfd.caixa.gov.br/ecaixa/resposta.json. Consulte o
+                  documento Proposta de Integração Caixa e FGTS Digital.
+                type: string
+        '500':
+          description: Erro inesperado na infraestrutura
+          content:
+            text/plain:
+              schema:
+                description: Token JWS assinado contendo um payload especificado
+                  em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                  reivindicação dat está definida em
+                  https://sicfd.caixa.gov.br/ecaixa/resposta.json. Se a falha
+                  for tal que a assinatura não possa ser realizada, o corpo
+                  da resposta contém uma mensagem de erro em texto plano.
+                type: string
+
+    put:
+      operationId: desligaTrabalhador
+      summary: Desligamento do empregado
+      description: Informações fornecidas no ato da finalização de um vínculo.
+        É possível utilizar esta operação como um rollback de operação
+        anteriormente efetuada. O indicador de rollback aparece no payload JSON.
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              description: Token JWS assinado contendo um payload especificado
+                em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                reivindicação dat está definida em
+                https://sicfd.caixa.gov.br/ecaixa/vinculo.json
+              type: string
+      responses:
+        '200':
+          description: Operação bem sucedida.
+          content:
+            text/plain:
+              schema:
+                description: Token JWS assinado contendo um payload especificado
+                  em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                  reivindicação dat está definida em
+                  https://sicfd.caixa.gov.br/ecaixa/resposta.json
+                type: string
+        '400':
+          description: Objeto JSON inesperado recebido no requestBody
+          content:
+            text/plain:
+              schema:
+                description: Token JWS assinado contendo um payload especificado
+                  em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                  reivindicação dat está definida em
+                  https://sicfd.caixa.gov.br/ecaixa/resposta.json. Consulte o
+                  documento Proposta de Integração Caixa e FGTS Digital.
+                type: string
+        '403':
+          description: Falha na verificação da assinatura
+          content:
+            text/plain:
+              schema:
+                description: Token JWS assinado contendo um payload especificado
+                  em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                  reivindicação dat está definida em
+                  https://sicfd.caixa.gov.br/ecaixa/resposta.json
+                type: string
+        '409':
+          description: Operação não processada por erro de negócio.
+          content:
+            text/plain:
+              schema:
+                description: Token JWS assinado contendo um payload especificado
+                  em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                  reivindicação dat está definida em
+                  https://sicfd.caixa.gov.br/ecaixa/resposta.json. Consulte o
+                  documento Proposta de Integração Caixa e FGTS Digital.
+                type: string
+        '500':
+          description: Erro inesperado na infraestrutura
+          content:
+            text/plain:
+              schema:
+                description: Token JWS assinado contendo um payload especificado
+                  em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                  reivindicação dat está definida em
+                  https://sicfd.caixa.gov.br/ecaixa/resposta.json. Se a falha
+                  for tal que a assinatura não possa ser realizada, o corpo
+                  da resposta contém uma mensagem de erro em texto plano.
+                type: string
+  
+
+  # Serviço assíncrono de individualização
+  /individualizacao:
+
+    post:
+      operationId: individualiza
+      summary: Individualização da guia
+      description: Individualização na conta dos trabalhadores descritos numa
+        guia. Operação fire and forget (but remember later).
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              description: Token JWS assinado contendo um payload especificado
+                em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                reivindicação dat está definida em
+                https://sicfd.caixa.gov.br/ecaixa/guia.json
+              type: string
+      responses:
+        '202':
+          description: Operação aceita para processamento posterior.
+          content:
+            text/plain:
+              schema:
+                description: Token JWS assinado contendo um payload especificado
+                  em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                  reivindicação dat está definida em
+                  https://sicfd.caixa.gov.br/ecaixa/resposta-assincrona.json
+                type: string
+        '400':
+          description: Objeto JSON inesperado recebido no requestBody
+          content:
+            text/plain:
+              schema:
+                description: Token JWS assinado contendo um payload especificado
+                  em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                  reivindicação dat está definida em
+                  https://sicfd.caixa.gov.br/ecaixa/resposta.json. Consulte o
+                  documento Proposta de Integração Caixa e FGTS Digital.
+                type: string
+        '403':
+          description: Falha na verificação da assinatura
+          content:
+            text/plain:
+              schema:
+                description: Token JWS assinado contendo um payload especificado
+                  em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                  reivindicação dat está definida em
+                  https://sicfd.caixa.gov.br/ecaixa/resposta.json
+                type: string
+        '500':
+          description: Erro inesperado na infraestrutura
+          content:
+            text/plain:
+              schema:
+                description: Token JWS assinado contendo um payload especificado
+                  em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                  reivindicação dat está definida em
+                  https://sicfd.caixa.gov.br/ecaixa/resposta.json. Se a falha
+                  for tal que a assinatura não possa ser realizada, o corpo
+                  da resposta contém uma mensagem de erro em texto plano.
+                type: string
+
+  # Serviço assíncrono de retificação financeira do trabalhador
+  /retificacaofinanceira:
+
+    post:
+      operationId: retifica
+      summary: Retificação financeira
+      description: Pedido de bloqueio para retificação financeira do saldo
+        do trabalhador. Operação fire and forget (but remember later).
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              description: Token JWS assinado contendo um payload especificado
+                em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                reivindicação dat está definida em
+                https://sicfd.caixa.gov.br/ecaixa/retificacao.json
+              type: string
+      responses:
+        '202':
+          description: Operação aceita para processamento posterior.
+          content:
+            text/plain:
+              schema:
+                description: Token JWS assinado contendo um payload especificado
+                  em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                  reivindicação dat está definida em
+                  https://sicfd.caixa.gov.br/ecaixa/resposta-assincrona.json
+                type: string
+        '400':
+          description: Objeto JSON inesperado recebido no requestBody
+          content:
+            text/plain:
+              schema:
+                description: Token JWS assinado contendo um payload especificado
+                  em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                  reivindicação dat está definida em
+                  https://sicfd.caixa.gov.br/ecaixa/resposta.json. Consulte o
+                  documento Proposta de Integração Caixa e FGTS Digital.
+                type: string
+        '403':
+          description: Falha na verificação da assinatura
+          content:
+            text/plain:
+              schema:
+                description: Token JWS assinado contendo um payload especificado
+                  em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                  reivindicação dat está definida em
+                  https://sicfd.caixa.gov.br/ecaixa/resposta.json
+                type: string
+        '500':
+          description: Erro inesperado na infraestrutura
+          content:
+            text/plain:
+              schema:
+                description: Token JWS assinado contendo um payload especificado
+                  em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                  reivindicação dat está definida em
+                  https://sicfd.caixa.gov.br/ecaixa/resposta.json. Se a falha
+                  for tal que a assinatura não possa ser realizada, o corpo
+                  da resposta contém uma mensagem de erro em texto plano.
+                type: string
+
+    delete:
+      operationId: cancelaRetificacao
+      summary: Cancelamento de retificação
+      description: Cancelamento de pedido de retificação financeira
+      parameters:
+      - in: query
+        name: protocolo
+        description: Recibo do pedido de cancelamento
+        required: true
+        schema:
+          type: string
+          pattern: '^[a-zA-Z0-9]{32}$'
+      responses:
+        '200':
+          description: Operação bem sucedida.
+          content:
+            text/plain:
+              schema:
+                description: Token JWS assinado contendo um payload especificado
+                  em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                  reivindicação dat está definida em
+                  https://sicfd.caixa.gov.br/ecaixa/resposta.json
+                type: string
+        '409':
+          description: Operação não processada por erro de negócio.
+          content:
+            text/plain:
+              schema:
+                description: Token JWS assinado contendo um payload especificado
+                  em https://sicfd.caixa.gov.br/ecaixa/jwt-payload.json, cuja
+                  reivindicação dat está definida em
+                  https://sicfd.caixa.gov.br/ecaixa/resposta.json. Consulte o
+                  documento Proposta de Integração Caixa e FGTS Digital.
+                type: string
