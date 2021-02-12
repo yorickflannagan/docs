@@ -1,0 +1,68 @@
+#!/bin/bash
+# --------------------------------------------------------------------------------
+# Script de execução do aplicativo Quarkus de monitoramento
+# Atenção:
+#	As configurações descritas aqui devem ser consistentes com as configurações
+#	dos endpoints monitorados. Consulte o script run-app.
+#
+# System.Properties
+# ----------------------------------------
+#	quarkus.http.root-path: contexto web do aplicativo de monitoramento.
+#		Deve obrigatoriamente ter o valor /things-mgmt, requerido pela interface
+#		Javascript. Desejando outro valor, será necessário reconfigurar e
+#		recompilar o projeto mgmt-app e suas dependências. Consulte o repositório
+#		https://bitbucket.org/yakoana/monitoring.git.
+#	org.crypthing.thing.storage: caminho completo para o arquivo JSON de
+#		persistência dos endpoints sob monitoramento. Este arquivo permite que,
+#		havendo a reinicialização do aplicativo, os mesmos serviços anteriormente
+#		monitorados continuem a sê-lo sem interferência do operador.
+#	org.crypthing.things.MIBAddress: IP/Porta de escuta das traps SNMP enviadas
+#		pelos aplicativos. Deve ter o mesmo valor configurado nos endpoints.
+#	org.crypthing.things.maxevents: quantidade máxima de eventos disparados por
+#		cada aplicativo e armazenados em memória durante o monitoramento.
+#	org.crypthing.things.eventLog: indicador de armazenamento em log dos eventos
+#		de info, warning e error disparados pelos aplicativos monitorados.
+#	O serviço de monitoramento se utiliza do adaptador de logging jboss-logging-jdk.
+#		Verifique a configuração de log mais apropriada à sua instalação.
+# --------------------------------------------------------------------------------
+JSON="$HOME/mgmt-app.json"
+MIB_ADDR=127.0.0.1/8173
+EVENTS=264
+LOG=true
+HTTP_PORT=8082
+FMT="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p [%c] %s%e%n"
+# ----------------------------------------
+# Configurações mínimas requeridas
+# ----------------------------------------
+ROOT_PATH="-Dquarkus.http.root-path=/things-mgmt"
+STORAGE="-Dorg.crypthing.thing.storage=$JSON"
+MIB_ADDRESS="-Dorg.crypthing.things.MIBAddress=$MIB_ADDR"
+MAX_EVENTS="-Dorg.crypthing.things.maxevents=$EVENTS"
+LOG_EVENTS="-Dorg.crypthing.things.eventLog=$LOG"
+# ----------------------------------------
+# Configurações de log
+# ----------------------------------------
+LOGCONSOLE="-Dquarkus.log.console.enable=false"
+LOGFILE="-Dquarkus.log.file.enable=true"
+LOGPATH="-Dquarkus.log.file.path=$HOME/mgmt-app.log"
+LOGFMT="-Dquarkus.log.file.format=$FMT"
+LOG_SIZE="-Dquarkus.log.file.rotation.max-file-size=134217728"
+LOG_INDEX="-Dquarkus.log.file.rotation.max-backup-index=64"
+LOG_SUFIX="-Dquarkus.log.file.rotation.file-suffix=.yyyy-MM-dd"
+# ----------------------------------------
+# Requerido por esta demonstração
+# ----------------------------------------
+QHOST="-Dquarkus.http.host=localhost"
+QPORT="-Dquarkus.http.port=$HTTP_PORT"
+DIR="$HOME/development/things-project/monitoring/mgmt-app/target/"
+PACKAGE=mgmt-app-1.0.0-runner.jar
+if [ -n "$JAVA_HOME" ]; then
+	JAVA="$JAVA_HOME/bin/java"
+else
+	JAVA="$(which java)"
+fi
+cd "$DIR"
+$JAVA	$ROOT_PATH $STORAGE $MIB_ADDRESS $MAX_EVENTS \
+		$LOGCONSOLE $LOG_EVENTS $LOGFILE $LOGPATH "$LOGFMT" $LOG_SIZE $LOG_INDEX $LOG_SUFIX \
+		$QHOST $QPORT -jar $PACKAGE
+cd -

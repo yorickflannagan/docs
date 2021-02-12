@@ -1,0 +1,65 @@
+#!/bin/bash
+# --------------------------------------------------------------------------------
+# Configuração para execução de um endpoint monitorável pelo serviço things-mgmt
+# Atenção:
+# 	Essas configurações podem ser realizadas através do arquivo
+#	application.properties que pode acompanhar as aplicações Quarkus. No entanto,
+#	prevalecem as System.Properties usadas para iniciar a JVM. Como aquele
+#	arquivo deve ser embarcado no JAR do pacote things-service, diferentes
+#	aplicações não podem compartilhar os mesmos valores para a conexão JMX
+#	e para o registro de log. Sendo assim, é recomendável iniciar cada aplicação
+#	com sua própria definição de System.Properties
+#
+# System.Properties
+# ----------------------------------------
+# 	org.crypthing.things.MIBAddress: IP/Porta de destino das traps SNMP. Todos os
+#		aplicativos devem compartilhar o mesmo valor
+#	org.crypthing.things.rootOID: OID raiz utilizado para mapear as traps SNMP.
+#		Todos os aplicativos devem compartilhar o mesmo valor
+#	org.crypthing.things.jmxHost e org.crypthing.things.jmxPort: IP e porta
+#		para a conexão JMX. Cada aplicativo deve ter um par diferente.
+#	org.crypthing.things.heartbeat: intervalo em milissegundos entre cada trap 
+#		indicativa de saúde da aplicação. É recomendável que todos os aplicativos
+#		compartilhem o mesmo valor
+#	org.crypthing.things.endpoint: nome distinto do endpoint (para registro de log)
+#	Cada aplicativo deve ser lançado com as propriedades requeridas pela JVM para
+#		permitir conexões JMX. Consulte a documentação da Oracle para maiores
+#		detalhes em https://docs.oracle.com/javase/8/docs/technotes/guides/management/agent.html
+# --------------------------------------------------------------------------------
+MIB_ADDR=127.0.0.1/8173
+OID=1.4.171
+HOST=127.0.0.1
+PORT=8011
+HEART=5000
+APP=br.gov.caixa.sicfd.ecaixa.service
+HTTP_PORT=8081
+PACKAGE=service-demo-1.0.0-runner.jar
+# ----------------------------------------
+# Requerido pela biblioteca things-service
+# ----------------------------------------
+MIB_ADDRESS="-Dorg.crypthing.things.MIBAddress=$MIB_ADDR"
+ROOT_OID="-Dorg.crypthing.things.rootOID=$OID"
+JMX_HOST="-Dorg.crypthing.things.jmxHost=$HOST"
+JMX_PORT="-Dorg.crypthing.things.jmxPort=$PORT"
+HEARTBEAT="-Dorg.crypthing.things.heartbeat=$HEART"
+ENDPOINT="-Dorg.crypthing.things.endpoint=$APP"
+# ----------------------------------------
+# Requerido pela JVM para conexões JMX
+#	JMX_AUTH: parâmetros de autenticação
+#	JMX_ADDR: parâmetros para a conexão
+# ----------------------------------------
+JMX_AUTH="-Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
+JMX_ADDR="-Djava.rmi.server.hostname=$HOST -Dcom.sun.management.jmxremote.port=$PORT"
+# ----------------------------------------
+# Requerido por esta demonstração
+# ----------------------------------------
+QUARKUS_PORT="-Dquarkus.http.port=$HTTP_PORT"
+TARGET_APP="target/$PACKAGE"
+if [ -n "$JAVA_HOME" ]; then
+	JAVA="$JAVA_HOME/bin/java"
+else
+	JAVA="$(which java)"
+fi
+$JAVA 	$MIB_ADDRESS $ROOT_OID $JMX_HOST $JMX_PORT $HEARTBEAT $ENDPOINT \
+		$JMX_AUTH $JMX_ADDR \
+		$QUARKUS_PORT -jar $TARGET_APP
